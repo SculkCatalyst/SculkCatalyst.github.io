@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SculkCatalyst | Deep Dark Project</title>
+    
+    <link rel="icon" type="image/png" href="ico.png">
+    
+    <style>
+        @font-face {
+            font-family: 'Seven';
+            src: url('seven.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
+
+    <style>
+        :root {
+            --bg: #0B0E11;
+            --sculk-dark: #12181A;
+            --sculk-cyan: #00FFCC;
+            --sculk-blue: #0D47A1;
+            --sculk-red: #D32F2F;
+            --text: #B0BEC5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Seven', 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(13, 71, 161, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(0, 255, 204, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(211, 47, 47, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Пиксель-арт: не мылится при увеличении */
+        .pixel-img {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: block;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Навигация */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: rgba(11, 14, 17, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-logo img {
+            height: 40px;
+            width: auto;
+            filter: drop-shadow(0 0 8px var(--sculk-cyan));
+        }
+
+        .logo-text {
+            font-family: 'Seven', serif;
+            font-size: 1.8rem;
+            color: var(--sculk-cyan);
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 30px;
+            transition: color 0.3s;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--sculk-cyan);
+            text-shadow: 0 0 8px var(--sculk-cyan);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 100px 20px;
+            position: relative;
+        }
+
+        .hero-logo {
+            width: 180px;
+            height: auto;
+            margin-bottom: 30px;
+            animation: pulse-glow 3s infinite alternate;
+            filter: drop-shadow(0 0 25px rgba(0, 255, 204, 0.7));
+        }
+
+        .hero h1 {
+            font-family: 'Seven', serif;
+            font-size: 5rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 25px;
+            position: relative;
+            animation: pulse-glow 3s infinite alternate;
+            line-height: 1.1;
+        }
+
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 20px rgba(0, 255, 204, 0.3), 0 0 40px rgba(0, 255, 204, 0.1); }
+            100% { text-shadow: 0 0 30px rgba(0, 255, 204, 0.8), 0 0 60px rgba(0, 255, 204, 0.4); }
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            max-width: 750px;
+            margin-bottom: 40px;
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .hero .tagline {
+            color: var(--sculk-cyan);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        /* Кнопки */
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 18px 45px;
+            background: transparent;
+            border: 2px solid var(--sculk-cyan);
+            color: var(--sculk-cyan);
+            font-family: 'Seven', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: rgba(0, 255, 204, 0.1);
+            box-shadow: 0 0 35px rgba(0, 255, 204, 0.7);
+            transform: scale(1.05);
+        }
+
+        .btn-download {
+            border-color: var(--sculk-red);
+            color: var(--sculk-red);
+            box-shadow: 0 0 15px rgba(211, 47, 47, 0.2);
+        }
+
+        .btn-download:hover {
+            background: rgba(211, 47, 47, 0.1);
+            box-shadow: 0 0 35px rgba(211, 47, 47, 0.7);
+        }
+
+        /* Плашка о донате */
+        .donate-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(211, 47, 47, 0.12);
+            border: 1px solid var(--sculk-red);
+            color: #ff8a80;
+            padding: 15px 25px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(211, 47, 47, 0.25);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .donate-badge span {
+            font-size: 1.4rem;
+        }
+
+        .donate-badge strong {
+            color: var(--sculk-cyan);
+        }
+
+        .donate-badge a {
+            color: var(--sculk-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--sculk-cyan);
+        }
+
+        .donate-badge a:hover {
+            text-shadow: 0 0 10px var(--sculk-cyan);
+        }
+
+        /* Секции */
+        .section {
+            padding: 120px 50px;
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'Seven', serif;
+            font-size: 3rem;
+            color: var(--sculk-cyan);
+            margin-bottom: 60px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background: var(--sculk-cyan);
+            margin: 20px auto 0;
+            box-shadow: 0 0 15px var(--sculk-cyan);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(18, 24, 26, 0.85);
+            border: 1px solid rgba(0, 255, 204, 0.15);
+            padding: 35px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--sculk-cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            border-color: var(--sculk-cyan);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+            transform: translateY(-8px);
+        }
+
+        .card h3 {
+            color: #fff;
+            font-family: 'Seven', serif;
+            margin-bottom: 18px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Галерея */
+        .gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .gallery-item {
+            background: rgba(18, 24, 26, 0.85);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--sculk-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.35);
+            transform: scale(1.03);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-caption {
+            padding: 25px;
+            text-align: center;
+            color: var(--sculk-cyan);
+            font-family: 'Seven', serif;
+            font-size: 1.3rem;
+            border-top: 1px solid rgba(0, 255, 204, 0.15);
+        }
+
+        .gallery-caption p {
+            color: var(--text);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Предупреждение */
+        .warning {
+            background: rgba(211, 47, 47, 0.1);
+            border-left: 5px solid var(--sculk-red);
+            padding: 30px;
+            margin: 60px 0;
+            font-size: 0.95rem;
+            color: #ff8a80;
+            line-height: 1.8;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .warning strong {
+            color: var(--sculk-red);
+            font-size: 1.1rem;
+        }
+
+        .warning a {
+            color: var(--sculk-cyan);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--sculk-cyan);
+        }
+
+        .warning a:hover {
+            text-shadow: 0 0 10px var(--sculk-cyan);
+        }
+
+        /* Шаги */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            counter-reset: step;
+        }
+
+        .step {
+            background: rgba(18, 24, 26, 0.7);
+            border: 1px solid rgba(0, 255, 204, 0.1);
+            padding: 30px;
+            border-radius: 6px;
+            position: relative;
+            counter-increment: step;
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            border-color: var(--sculk-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+        }
+
+        .step::before {
+            content: counter(step);
+            position: absolute;
+            top: -20px;
+            left: 30px;
+            width: 45px;
+            height: 45px;
+            background: var(--bg);
+            border: 2px solid var(--sculk-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sculk-cyan);
+            font-family: 'Seven', serif;
+            font-size: 1.3rem;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        .step h3 {
+            color: #fff;
+            margin: 10px 0 15px;
+            font-size: 1.2rem;
+        }
+
+        .step p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 50px 30px;
+            border-top: 1px solid rgba(0, 255, 204, 0.1);
+            font-size: 0.85rem;
+            color: #607d8b;
+            background: rgba(11, 14, 17, 0.5);
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+
+        /* Глитч */
+        .glitch {
+            position: relative;
+            display: inline-block;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        .glitch::before {
+            left: 3px;
+            text-shadow: -3px 0 var(--sculk-red);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -3px;
+            text-shadow: -3px 0 var(--sculk-cyan);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0); }
+            20% { clip: rect(62px, 9999px, 42px, 0); }
+            40% { clip: rect(16px, 9999px, 78px, 0); }
+            60% { clip: rect(58px, 9999px, 29px, 0); }
+            80% { clip: rect(91px, 9999px, 15px, 0); }
+            100% { clip: rect(22px, 9999px, 87px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            20% { clip: rect(12px, 9999px, 55px, 0); }
+            40% { clip: rect(88px, 9999px, 33px, 0); }
+            60% { clip: rect(44px, 9999px, 77px, 0); }
+            80% { clip: rect(10px, 9999px, 60px, 0); }
+            100% { clip: rect(70px, 9999px, 20px, 0); }
+        }
+
+        /* Адаптив */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.8rem; letter-spacing: 4px; }
+            nav { flex-direction: column; gap: 10px; padding: 15px; }
+            .nav-links a { margin: 0 10px; font-size: 0.85rem; }
+            .logo-text { font-size: 1.3rem; }
+            .gallery { grid-template-columns: 1fr; }
+            .section { padding: 70px 20px; }
+            .section-title { font-size: 2rem; }
+            .hero .subtitle { font-size: 1.1rem; }
+            .hero-logo { width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <nav>
+        <div class="nav-logo">
+            <img src="ico.png" alt="SculkCatalyst Logo" class="pixel-img">
+            <div class="logo-text">SCULK_CATALYST</div>
+        </div>
+        <div class="nav-links">
+            <a href="#mechanic">Механика</a>
+            <a href="#gallery">Катализаторы</a>
+            <a href="#steps">Как это работает</a>
+            <a href="#consequences">Последствия</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <img src="ico.png" alt="Sculk Logo" class="hero-logo pixel-img">
+        <div class="tagline">Deep Dark Project // Биологическое оружие</div>
+        <h1 class="glitch" data-text="SCULK CATALYST">SCULK CATALYST</h1>
+        <p class="subtitle">Мы не ломаем блоки. Мы меняем реальность. Механизм, который игнорирует регионы и превращает базы в зоны отчуждения за считанные секунды.</p>
+        
+        <div class="donate-badge">
+            <span>💰</span>
+            <div>
+                <strong>⚠️ ВАЖНО:</strong> Рекомендуется донат в котором доступен креатив (К примеру <a href="https://mineblaze.net" target="_blank">mineblaze.net: Креатив, 15 руб.</a>). 
+                В обычном выживании без креатива вы не сможете получить яйца призыва и катализатор в нужном количестве.
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <a href="#mechanic" class="btn">Изучить механику</a>
+            <a href="SculkCatalyst.zip" download class="btn btn-download">Скачать текстурпак</a>
+        </div>
+    </section>
+
+    <section id="mechanic" class="section">
+        <h2 class="section-title">Механика</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>⚡ Триггер</h3>
+                <p>5 блоков редстоуна, 2 наблюдателя, 1 скалковый катализатор и 2 раздатчика. Петля наблюдателей создает бесконечный цикл, который не остановится, пока есть ресурсы.</p>
+            </div>
+            <div class="card">
+                <h3>🧬 Биомасса</h3>
+                <p>Яйца призыва разорителей или хранителей. Смерть моба дает опыт, катализатор поглощает его и распространяет скалк с невероятной скоростью.</p>
+            </div>
+            <div class="card">
+                <h3>💀 Результат</h3>
+                <p>Мгновенное заражение биома. Скалк игнорирует защиту регионов, так как является природной механикой, а не действием игрока. Админы не смогут откатить это через логи.</p>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ ВАЖНО:</strong> Рекомендуется донат в котором доступен креатив (К примеру <a href="https://mineblaze.net" target="_blank">mineblaze.net: Креатив, 15 руб.</a>). 
+            В обычном выживании без креатива вы не сможете получить яйца призыва и катализатор в нужном количестве. 
+            Использование яиц Хранителей может привести к спонтанному появлению Варденов — убедитесь, что у вас есть план эвакуации.
+        </div>
+    </section>
+
+    <section id="gallery" class="section">
+        <h2 class="section-title">Примеры катализаторов</h2>
+        <div class="gallery">
+            <div class="gallery-item">
+                <img src="big.png" alt="Большой скалк-катализатор" class="pixel-img">
+                <div class="gallery-caption">
+                    Big Catalyst
+                    <p>Крупный механизм для масштабного заражения. Требует больше ресурсов, но накрывает целые чанки и создает плотное кольцо сенсоров.</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="small.png" alt="Малый скалк-катализатор" class="pixel-img">
+                <div class="gallery-caption">
+                    Small Catalyst
+                    <p>Компактная версия (5 редстоуна, 2 наблюдателя, 1 катализатор, 2 раздатчика). Идеален для скрытных атак и закладки под базу врага.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="steps" class="section">
+        <h2 class="section-title">Как это работает</h2>
+        <div class="steps">
+            <div class="step">
+                <h3>Активация</h3>
+                <p>Подай сигнал редстоуна на цепь. Раздатчик выбрасывает первое яйцо призыва.</p>
+            </div>
+            <div class="step">
+                <h3>Петля</h3>
+                <p>Наблюдатели видят спавн моба и замыкают цикл. Раздатчики начинают работать без остановки.</p>
+            </div>
+            <div class="step">
+                <h3>Смерть</h3>
+                <p>Второй раздатчик убивает моба. Опыт поглощается скалковым катализатором.</p>
+            </div>
+            <div class="step">
+                <h3>Заражение</h3>
+                <p>Скалк расползается по биому, игнорируя регионы. Враг теряет базу.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="consequences" class="section">
+        <h2 class="section-title">Последствия</h2>
+        <div class="card" style="text-align: center; padding: 70px;">
+            <p style="font-size: 1.5rem; color: #fff; line-height: 1.6;">"Здесь была база. Теперь здесь только скалк."</p>
+            <p style="margin-top: 25px; color: var(--sculk-cyan); font-size: 1.1rem;">— Анонимный грифер</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>SculkCatalyst © 2026. Все блоки будут поглощены.</p>
+        <p style="margin-top: 10px; color: var(--sculk-red);">Осторожно: звуки на этом сайте могут привлечь Вардена.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedX = Math.random() * 0.6 - 0.3;
+                this.speedY = Math.random() * 0.6 - 0.3;
+                this.opacity = Math.random() * 0.6 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > width) this.speedX *= -1;
+                if (this.y < 0 || this.y > height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(0, 255, 204, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 120; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
